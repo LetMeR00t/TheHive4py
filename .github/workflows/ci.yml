@@ -7,9 +7,17 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-      - uses: ./.github/actions/init-python-env
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+      - name: Install dependencies
+        run: pip install -U pip .['dev']
       - name: Lint check with flake8
         run: scripts/ci.py lint
       - name: Format check with black
